@@ -39,10 +39,12 @@
             // PB_Image
             // 
             PB_Image.BackgroundImage = Properties.Resources.kitakami2000;
+            PB_Image.BackgroundImageLayout = ImageLayout.Zoom;
+            PB_Image.Dock = DockStyle.Fill;
             PB_Image.Location = new Point(0, 0);
             PB_Image.Name = "PB_Image";
-            PB_Image.Size = new Size(2000, 2000);
-            PB_Image.SizeMode = PictureBoxSizeMode.CenterImage;
+            PB_Image.Size = new Size(2000, 1999);
+            PB_Image.SizeMode = PictureBoxSizeMode.Zoom;
             PB_Image.TabIndex = 0;
             PB_Image.TabStop = false;
             // 
@@ -66,6 +68,7 @@
             Controls.Add(NUD_Tolerance);
             Controls.Add(PB_Image);
             Name = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)PB_Image).EndInit();
             ((System.ComponentModel.ISupportInitialize)NUD_Tolerance).EndInit();
