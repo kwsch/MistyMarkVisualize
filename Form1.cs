@@ -149,16 +149,47 @@ public partial class Form1 : Form
         var coord = CurrentCoordinate;
         var fake = new Coordinate(coord.X, coord.Y);
         var point = _geometryFactory.CreatePoint(fake);
-        if (!_hull.Contains(point))
+
+        // shift: add outside hull
+        // shift-ctrl: add inside hull
+        // alt: delete
+
+        // otherwise, play sound (asterisk outside hull, hand inside hull)
+
+        if (!_hull.Contains(point) || (ModifierKeys & Keys.Control) != 0)
         {
             // Add
-            AddCoordinate(fake);
-            System.Media.SystemSounds.Asterisk.Play();
+            if ((ModifierKeys & Keys.Shift) != 0)
+                AddCoordinate(fake);
+            else
+                System.Media.SystemSounds.Asterisk.Play();
         }
         else
         {
-            System.Media.SystemSounds.Hand.Play();
+            if ((ModifierKeys & Keys.Alt) != 0)
+                RemoveCoordinate(fake);
+            else
+                System.Media.SystemSounds.Hand.Play();
         }
+    }
+
+    private void RemoveCoordinate(Coordinate fake)
+    {
+        var nearest = Program.Created.MinBy(z => z.Distance(fake));
+        double distance = -1;
+        if (nearest == null || (distance = nearest.Distance(fake)) > (double)NUD_Tolerance.Value)
+        {
+            string nearPosition = $"Nearest: {fake.X},{fake.Y} @ distance: {distance:F1}";
+            MessageBox.Show($"No nearby created coordinate to remove. {nearPosition}", "Remove Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        Program.Created.Remove(nearest);
+        Program.MistyCoordinates.Remove(nearest);
+        UpdateImage();
+        if (Program.Created.Count == 0)
+            B_ClearCreated.Visible = false;
+        System.Media.SystemSounds.Asterisk.Play();
     }
 
     private void AddCoordinate(Coordinate fake)
@@ -166,8 +197,8 @@ public partial class Form1 : Form
         Program.Created.Add(fake);
         Program.MistyCoordinates.Add(fake);
         UpdateImage();
-        System.Media.SystemSounds.Asterisk.Play();
         B_ClearCreated.Visible = true;
+        System.Media.SystemSounds.Asterisk.Play();
     }
 
     private void B_ExportCreated_Click(object sender, EventArgs e)
