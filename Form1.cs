@@ -1,5 +1,5 @@
-using System.Runtime.InteropServices;
 using NetTopologySuite.Geometries;
+using System.Runtime.InteropServices;
 
 namespace MistyMarkVisualize;
 
@@ -14,6 +14,7 @@ public partial class Form1 : Form
         InitializeComponent();
         FLP_Alternate.Parent = L_Coordinate.Parent = PB_Image;
 
+        B_ClearCreated.Visible = Program.Created.Count != 0;
         NUD_Tolerance.ValueChanged += ChangeTolerance;
         if (!LoadOtherCoordinates())
             FLP_Alternate.Visible = false;
@@ -146,14 +147,61 @@ public partial class Form1 : Form
         }
 
         var coord = CurrentCoordinate;
-        var fake = _geometryFactory.CreatePoint(new Coordinate(coord.X, coord.Y));
-        if (_hull.Contains(fake))
+        var fake = new Coordinate(coord.X, coord.Y);
+        var point = _geometryFactory.CreatePoint(fake);
+        if (!_hull.Contains(point))
         {
+            // Add
+            AddCoordinate(fake);
             System.Media.SystemSounds.Asterisk.Play();
         }
         else
         {
             System.Media.SystemSounds.Hand.Play();
         }
+    }
+
+    private void AddCoordinate(Coordinate fake)
+    {
+        Program.Created.Add(fake);
+        Program.MistyCoordinates.Add(fake);
+        UpdateImage();
+        System.Media.SystemSounds.Asterisk.Play();
+        B_ClearCreated.Visible = true;
+    }
+
+    private void B_ExportCreated_Click(object sender, EventArgs e)
+    {
+        if (Program.Created.Count == 0)
+        {
+            MessageBox.Show("No created coordinates to export.", "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var filePath = Path.Combine(Program.ExeDir, Program.FileNameCreated);
+        try
+        {
+            File.WriteAllLines(filePath, Program.Created.Select(c => $"{c.X},{c.Y}"));
+            MessageBox.Show($"Created coordinates exported to: {filePath}", "Export Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to export created coordinates: {ex.Message}", "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void B_ClearCreated_Click(object sender, EventArgs e)
+    {
+        if (Program.Created.Count == 0)
+        {
+            MessageBox.Show("No created coordinates to clear.", "Clear Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+        Program.MistyCoordinates.RemoveAll(Program.Created.Contains);
+        Program.Created.Clear();
+        UpdateImage();
+        System.Media.SystemSounds.Asterisk.Play();
+        MessageBox.Show("Created coordinates cleared.", "Clear Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        B_ClearCreated.Visible = false;
     }
 }

@@ -8,7 +8,10 @@ internal static class Program
     public static readonly List<Coordinate> Regular = [];
     public static readonly List<Coordinate> Outbreak = [];
 
+    public static readonly List<Coordinate> Created = [];
+
     private const string FileNameMisty = "misty.txt";
+    public const string FileNameCreated = "created.txt";
     private const string FileNameRegular = "original_encount.txt";
     private const string FileNameOutbreak = "original_outbreak.txt";
 
@@ -30,6 +33,9 @@ internal static class Program
         // If alternate coordinates are available, load them
         TryLoad(exeDir, FileNameRegular, Regular);
         TryLoad(exeDir, FileNameOutbreak, Outbreak);
+        TryLoad(exeDir, FileNameCreated, Created);
+
+        MistyCoordinates.AddRange(Created);
 
         ApplicationConfiguration.Initialize();
         Application.Run(new Form1());

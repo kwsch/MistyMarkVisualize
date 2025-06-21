@@ -36,6 +36,8 @@
             B_ExportIntersections = new Button();
             FLP_Alternate = new FlowLayoutPanel();
             CB_OtherCoordinateSelect = new ComboBox();
+            B_ExportCreated = new Button();
+            B_ClearCreated = new Button();
             L_Coordinate = new Label();
             ((System.ComponentModel.ISupportInitialize)PB_Image).BeginInit();
             ((System.ComponentModel.ISupportInitialize)NUD_Tolerance).BeginInit();
@@ -99,10 +101,12 @@
             FLP_Alternate.Controls.Add(CHK_RenderBaseCoordinates);
             FLP_Alternate.Controls.Add(CB_OtherCoordinateSelect);
             FLP_Alternate.Controls.Add(B_ExportIntersections);
+            FLP_Alternate.Controls.Add(B_ExportCreated);
+            FLP_Alternate.Controls.Add(B_ClearCreated);
             FLP_Alternate.Location = new Point(76, 0);
             FLP_Alternate.Margin = new Padding(0);
             FLP_Alternate.Name = "FLP_Alternate";
-            FLP_Alternate.Size = new Size(683, 36);
+            FLP_Alternate.Size = new Size(1005, 36);
             FLP_Alternate.TabIndex = 5;
             // 
             // CB_OtherCoordinateSelect
@@ -116,6 +120,26 @@
             CB_OtherCoordinateSelect.Name = "CB_OtherCoordinateSelect";
             CB_OtherCoordinateSelect.Size = new Size(140, 25);
             CB_OtherCoordinateSelect.TabIndex = 4;
+            // 
+            // B_ExportCreated
+            // 
+            B_ExportCreated.Location = new Point(503, 3);
+            B_ExportCreated.Name = "B_ExportCreated";
+            B_ExportCreated.Size = new Size(216, 32);
+            B_ExportCreated.TabIndex = 5;
+            B_ExportCreated.Text = "Export Created";
+            B_ExportCreated.UseVisualStyleBackColor = true;
+            B_ExportCreated.Click += B_ExportCreated_Click;
+            // 
+            // B_ClearCreated
+            // 
+            B_ClearCreated.Location = new Point(725, 3);
+            B_ClearCreated.Name = "B_ClearCreated";
+            B_ClearCreated.Size = new Size(216, 32);
+            B_ClearCreated.TabIndex = 6;
+            B_ClearCreated.Text = "Export Intersections";
+            B_ClearCreated.UseVisualStyleBackColor = true;
+            B_ClearCreated.Click += B_ClearCreated_Click;
             // 
             // L_Coordinate
             // 
@@ -156,5 +180,7 @@
         private FlowLayoutPanel FLP_Alternate;
         private ComboBox CB_OtherCoordinateSelect;
         private Label L_Coordinate;
+        private Button B_ExportCreated;
+        private Button B_ClearCreated;
     }
 }
