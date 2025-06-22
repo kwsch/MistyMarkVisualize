@@ -1,9 +1,10 @@
 using NetTopologySuite.Geometries;
 using System.Runtime.InteropServices;
+using NetTopologySuite.IO;
 
 namespace MistyMarkVisualize;
 
-public partial class Form1 : Form
+public partial class Main : Form
 {
     // local sanity check for other coordinates
     private readonly bool _hasOtherCoordinates;
@@ -16,7 +17,7 @@ public partial class Form1 : Form
     private bool _isCoordinateValid;
     private (int X, int Y) _currentCoordinate;
 
-    public Form1()
+    public Main()
     {
         InitializeComponent();
         FLP_Alternate.Parent = L_Coordinate.Parent = PB_Image;
@@ -84,10 +85,7 @@ public partial class Form1 : Form
 
     private void B_ExportIntersections_Click(object sender, EventArgs e)
     {
-        var tolerance = (double)NUD_Tolerance.Value;
-
-        var mist = CollectionsMarshal.AsSpan(Program.MistyCoordinates);
-
+        // Get other coordinate set
         var current = CB_OtherCoordinateSelect.SelectedItem?.ToString();
         ReadOnlySpan<Coordinate> alternate = [];
         if (_hasOtherCoordinates && CHK_RenderBaseCoordinates.Checked)
@@ -103,10 +101,15 @@ public partial class Form1 : Form
             return;
         }
 
+        var tolerance = (double)NUD_Tolerance.Value;
+        var mist = CollectionsMarshal.AsSpan(Program.MistyCoordinates);
         var list = MistyMarkVisualizer.GetFilteredMistyList(mist, alternate, tolerance);
 
-        var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "all_fog.txt");
+        var filePath = Path.Combine(Program.ExeDir, "all_fog.txt");
+        var hullPath = Path.Combine(Program.ExeDir, "hull.txt");
         File.WriteAllLines(filePath, list);
+        File.WriteAllText(hullPath, new WKTWriter().Write(_hull));
+        System.Media.SystemSounds.Asterisk.Play();
     }
 
     private static bool TryGetCoordinate(PictureBox control, MouseEventArgs e, out (int X, int Y) result)

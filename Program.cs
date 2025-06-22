@@ -38,7 +38,7 @@ internal static class Program
         MistyCoordinates.AddRange(Created);
 
         ApplicationConfiguration.Initialize();
-        Application.Run(new Form1());
+        Application.Run(new Main());
     }
 
     private static bool TryLoadMisty(string folderName)

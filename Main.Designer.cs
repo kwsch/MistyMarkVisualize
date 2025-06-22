@@ -1,6 +1,6 @@
 ﻿namespace MistyMarkVisualize
 {
-    partial class Form1
+    partial class Main
     {
         /// <summary>
         ///  Required designer variable.
@@ -164,7 +164,7 @@
             Margin = new Padding(2);
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Form1";
+            Text = "Misty Mark Visualizer";
             ((System.ComponentModel.ISupportInitialize)PB_Image).EndInit();
             ((System.ComponentModel.ISupportInitialize)NUD_Tolerance).EndInit();
             FLP_Alternate.ResumeLayout(false);

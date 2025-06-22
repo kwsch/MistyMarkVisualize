@@ -29,8 +29,7 @@ public static class MistyMarkVisualizer
             var geomPoint = factory.CreatePoint(point);
             if (!hull.Contains(geomPoint))
                 continue;
-
-            filteredPoints.Add($"{point.X:I},{point.Y:I}");
+            filteredPoints.Add($"{point.X:R},{point.Y:R}");
         }
         return filteredPoints;
     }
