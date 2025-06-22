@@ -5,16 +5,23 @@ namespace MistyMarkVisualize;
 
 public partial class Form1 : Form
 {
+    // local sanity check for other coordinates
     private readonly bool _hasOtherCoordinates;
+
+    // last rendered hull
     private readonly GeometryFactory _geometryFactory = new();
     private Geometry _hull;
+
+    // mouse hover coordinate tracking
+    private bool _isCoordinateValid;
+    private (int X, int Y) _currentCoordinate;
 
     public Form1()
     {
         InitializeComponent();
         FLP_Alternate.Parent = L_Coordinate.Parent = PB_Image;
 
-        B_ClearCreated.Visible = Program.Created.Count != 0;
+        B_ExportCreated.Visible = B_ClearCreated.Visible = Program.Created.Count != 0;
         NUD_Tolerance.ValueChanged += ChangeTolerance;
         if (!LoadOtherCoordinates())
             FLP_Alternate.Visible = false;
@@ -25,20 +32,33 @@ public partial class Form1 : Form
 
     private const string RegularCoordinates = "Regular Coordinates";
     private const string OutbreakCoordinates = "Outbreak Coordinates";
+    private const string NoOtherCoordinates = "None";
 
     private bool LoadOtherCoordinates()
     {
+        var cb = CB_OtherCoordinateSelect;
+        var items = cb.Items;
         if (Program.Regular.Count > 0)
-            CB_OtherCoordinateSelect.Items.Add(RegularCoordinates);
+            items.Add(RegularCoordinates);
         if (Program.Outbreak.Count > 0)
-            CB_OtherCoordinateSelect.Items.Add(OutbreakCoordinates);
-        CB_OtherCoordinateSelect.SelectedIndex = 0;
-        CB_OtherCoordinateSelect.SelectedIndexChanged += ToggleBaseCoords;
-        return CB_OtherCoordinateSelect.Items.Count != 0;
+            items.Add(OutbreakCoordinates);
+
+        if (items.Count != 0)
+            items.Add(NoOtherCoordinates);
+        else
+            return false;
+
+        cb.SelectedIndex = 0;
+        cb.SelectedIndexChanged += ToggleBaseCoords;
+        return true;
     }
 
     private void ChangeTolerance(object? sender, EventArgs e) => UpdateImage();
-    private void ToggleBaseCoords(object? sender, EventArgs e) => UpdateImage();
+    private void ToggleBaseCoords(object? sender, EventArgs e)
+    {
+        B_ExportIntersections.Visible = CB_OtherCoordinateSelect.SelectedItem?.ToString() != NoOtherCoordinates;
+        UpdateImage();
+    }
 
     private Geometry UpdateImage()
     {
@@ -67,7 +87,21 @@ public partial class Form1 : Form
         var tolerance = (double)NUD_Tolerance.Value;
 
         var mist = CollectionsMarshal.AsSpan(Program.MistyCoordinates);
-        var alternate = CollectionsMarshal.AsSpan(Program.Outbreak);
+
+        var current = CB_OtherCoordinateSelect.SelectedItem?.ToString();
+        ReadOnlySpan<Coordinate> alternate = [];
+        if (_hasOtherCoordinates && CHK_RenderBaseCoordinates.Checked)
+        {
+            if (current == RegularCoordinates)
+                alternate = CollectionsMarshal.AsSpan(Program.Regular);
+            else if (current == OutbreakCoordinates)
+                alternate = CollectionsMarshal.AsSpan(Program.Outbreak);
+        }
+        if (alternate.Length == 0)
+        {
+            MessageBox.Show("No alternate coordinates selected for intersection export.", "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
 
         var list = MistyMarkVisualizer.GetFilteredMistyList(mist, alternate, tolerance);
 
@@ -120,33 +154,21 @@ public partial class Form1 : Form
         return true;
     }
 
-    private bool IsCoordinateValid;
-    private (int X, int Y) CurrentCoordinate = default;
-
     private void TrackCoordinate(object sender, MouseEventArgs e)
     {
-        if (!TryGetCoordinate(PB_Image, e, out var value))
-        {
-            L_Coordinate.Text = "Out of bounds.";
-            IsCoordinateValid = false;
-        }
-        else
-        {
-            L_Coordinate.Text = $"X: {value.X}, Y: {value.Y}";
-            IsCoordinateValid = true;
-            CurrentCoordinate = value;
-        }
+        _isCoordinateValid = TryGetCoordinate(PB_Image, e, out _currentCoordinate);
+        L_Coordinate.Text = _isCoordinateValid ? $"X: {_currentCoordinate.X}, Y: {_currentCoordinate.Y}" : "Out of bounds.";
     }
 
     private void PB_Image_Click(object sender, EventArgs e)
     {
-        if (!IsCoordinateValid)
+        if (!_isCoordinateValid)
         {
             System.Media.SystemSounds.Asterisk.Play();
             return;
         }
 
-        var coord = CurrentCoordinate;
+        var coord = _currentCoordinate;
         var fake = new Coordinate(coord.X, coord.Y);
         var point = _geometryFactory.CreatePoint(fake);
 
@@ -176,10 +198,11 @@ public partial class Form1 : Form
     private void RemoveCoordinate(Coordinate fake)
     {
         var nearest = Program.Created.MinBy(z => z.Distance(fake));
-        double distance = -1;
+        var distance = double.MaxValue;
         if (nearest == null || (distance = nearest.Distance(fake)) > (double)NUD_Tolerance.Value)
         {
-            string nearPosition = $"Nearest: {fake.X},{fake.Y} @ distance: {distance:F1}";
+            // Nothing really near the clicked location; be nice and show the nearest coordinate as a hint.
+            var nearPosition = $"Nearest: {fake.X},{fake.Y} @ distance: {distance:F1}";
             MessageBox.Show($"No nearby created coordinate to remove. {nearPosition}", "Remove Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
@@ -231,7 +254,6 @@ public partial class Form1 : Form
         Program.MistyCoordinates.RemoveAll(Program.Created.Contains);
         Program.Created.Clear();
         UpdateImage();
-        System.Media.SystemSounds.Asterisk.Play();
         MessageBox.Show("Created coordinates cleared.", "Clear Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         B_ClearCreated.Visible = false;
     }
