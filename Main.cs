@@ -86,15 +86,7 @@ public partial class Main : Form
     private void B_ExportIntersections_Click(object sender, EventArgs e)
     {
         // Get other coordinate set
-        var current = CB_OtherCoordinateSelect.SelectedItem?.ToString();
-        ReadOnlySpan<Coordinate> alternate = [];
-        if (_hasOtherCoordinates && CHK_RenderBaseCoordinates.Checked)
-        {
-            if (current == RegularCoordinates)
-                alternate = CollectionsMarshal.AsSpan(Program.Regular);
-            else if (current == OutbreakCoordinates)
-                alternate = CollectionsMarshal.AsSpan(Program.Outbreak);
-        }
+        ReadOnlySpan<Coordinate> alternate = [..Program.Regular, ..Program.Outbreak];
         if (alternate.Length == 0)
         {
             MessageBox.Show("No alternate coordinates selected for intersection export.", "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);

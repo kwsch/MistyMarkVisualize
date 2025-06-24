@@ -137,7 +137,7 @@
             B_ClearCreated.Name = "B_ClearCreated";
             B_ClearCreated.Size = new Size(216, 32);
             B_ClearCreated.TabIndex = 6;
-            B_ClearCreated.Text = "Export Intersections";
+            B_ClearCreated.Text = "Clear Created";
             B_ClearCreated.UseVisualStyleBackColor = true;
             B_ClearCreated.Click += B_ClearCreated_Click;
             // 
@@ -151,7 +151,7 @@
             L_Coordinate.Size = new Size(0, 17);
             L_Coordinate.TabIndex = 6;
             // 
-            // Form1
+            // Main
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -162,7 +162,7 @@
             Controls.Add(NUD_Tolerance);
             Controls.Add(PB_Image);
             Margin = new Padding(2);
-            Name = "Form1";
+            Name = "Main";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Misty Mark Visualizer";
             ((System.ComponentModel.ISupportInitialize)PB_Image).EndInit();

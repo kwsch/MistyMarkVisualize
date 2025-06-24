@@ -22,7 +22,7 @@ public static class MistyMarkVisualizer
     {
         var hull = GetHull(misty, tolerance);
 
-        var filteredPoints = new List<string>();
+        var filteredPoints = new HashSet<string>();
         var factory = new GeometryFactory();
         foreach (var point in alternate)
         {
@@ -31,7 +31,7 @@ public static class MistyMarkVisualizer
                 continue;
             filteredPoints.Add($"{point.X:R},{point.Y:R}");
         }
-        return filteredPoints;
+        return filteredPoints.OrderBy(z => z).ToList();
     }
 
     private static Geometry GetHull(ReadOnlySpan<Coordinate> points, double tolerance)
