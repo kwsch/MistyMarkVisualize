@@ -21,17 +21,17 @@ public static class MistyMarkVisualizer
     public static List<string> GetFilteredMistyList(ReadOnlySpan<Coordinate> misty, ReadOnlySpan<Coordinate> alternate, double tolerance)
     {
         var hull = GetHull(misty, tolerance);
-
-        var filteredPoints = new HashSet<string>();
         var factory = new GeometryFactory();
+
+        var result = new HashSet<string>();
         foreach (var point in alternate)
         {
             var geomPoint = factory.CreatePoint(point);
             if (!hull.Contains(geomPoint))
                 continue;
-            filteredPoints.Add($"{point.X:R},{point.Y:R}");
+            result.Add($"{point.X:R},{point.Y:R}");
         }
-        return filteredPoints.OrderBy(z => z).ToList();
+        return result.Order().ToList();
     }
 
     private static Geometry GetHull(ReadOnlySpan<Coordinate> points, double tolerance)
