@@ -11,7 +11,7 @@ public partial class Main : Form
 
     // last rendered hull
     private readonly GeometryFactory _geometryFactory = new();
-    private Geometry _hull;
+    private MapVisualization _map;
 
     // mouse hover coordinate tracking
     private bool _isCoordinateValid;
@@ -28,7 +28,7 @@ public partial class Main : Form
             FLP_Alternate.Visible = false;
         else
             _hasOtherCoordinates = true;
-        _hull = UpdateImage();
+        _map = UpdateImage();
     }
 
     private const string RegularCoordinates = "Regular Coordinates";
@@ -61,7 +61,7 @@ public partial class Main : Form
         UpdateImage();
     }
 
-    private Geometry UpdateImage()
+    private MapVisualization UpdateImage()
     {
         var tolerance = (double)NUD_Tolerance.Value;
 
@@ -80,7 +80,7 @@ public partial class Main : Form
         var result = MistyMarkVisualizer.GetImage(mist, tolerance, alternate);
         PB_Image.Image?.Dispose();
         PB_Image.Image = result.Image;
-        return _hull = result.Hull;
+        return _map = result;
     }
 
     private void B_ExportIntersections_Click(object sender, EventArgs e)
@@ -100,7 +100,7 @@ public partial class Main : Form
         var filePath = Path.Combine(Program.ExeDir, "all_fog.txt");
         var hullPath = Path.Combine(Program.ExeDir, "hull.txt");
         File.WriteAllLines(filePath, list);
-        File.WriteAllText(hullPath, new WKTWriter().Write(_hull));
+        File.WriteAllText(hullPath, new WKTWriter().Write(_map.Hull));
         System.Media.SystemSounds.Asterisk.Play();
     }
 
@@ -173,7 +173,7 @@ public partial class Main : Form
 
         // otherwise, play sound (asterisk outside hull, hand inside hull)
 
-        if (!_hull.Contains(point) || (ModifierKeys & Keys.Control) != 0)
+        if (!_map.Hull.Contains(point) || (ModifierKeys & Keys.Control) != 0)
         {
             // Add
             if ((ModifierKeys & Keys.Shift) != 0)
@@ -230,7 +230,7 @@ public partial class Main : Form
         var filePath = Path.Combine(Program.ExeDir, Program.FileNameCreated);
         try
         {
-            File.WriteAllLines(filePath, Program.Created.Select(c => $"{c.X},{c.Y}"));
+            File.WriteAllLines(filePath, CoordinateLoader.Save(Program.Created));
             MessageBox.Show($"Created coordinates exported to: {filePath}", "Export Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)

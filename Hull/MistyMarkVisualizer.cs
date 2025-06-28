@@ -2,6 +2,9 @@ using NetTopologySuite.Geometries;
 
 namespace MistyMarkVisualize;
 
+/// <summary>
+/// Visualizes the map of valid misty mark coordinates by generating a hull containing all points, and rendering it as an image.
+/// </summary>
 public static class MistyMarkVisualizer
 {
     public const int SizeX = 2000;
@@ -18,20 +21,20 @@ public static class MistyMarkVisualizer
         };
     }
 
-    public static List<string> GetFilteredMistyList(ReadOnlySpan<Coordinate> misty, ReadOnlySpan<Coordinate> alternate, double tolerance)
+    public static IOrderedEnumerable<string> GetFilteredMistyList(ReadOnlySpan<Coordinate> misty, ReadOnlySpan<Coordinate> alternate, double tolerance)
     {
         var hull = GetHull(misty, tolerance);
         var factory = new GeometryFactory();
 
-        var result = new HashSet<string>();
+        var list = new List<Coordinate>();
         foreach (var point in alternate)
         {
             var geomPoint = factory.CreatePoint(point);
             if (!hull.Contains(geomPoint))
                 continue;
-            result.Add($"{point.X:R},{point.Y:R}");
+            list.Add(point);
         }
-        return result.Order().ToList();
+        return CoordinateLoader.Save(list);
     }
 
     private static Geometry GetHull(ReadOnlySpan<Coordinate> points, double tolerance)
@@ -39,10 +42,4 @@ public static class MistyMarkVisualizer
         var envelope = new Envelope(new Coordinate(SizeX, SizeY)); // map size
         return MistyMarkHullBuilder.GetConcaveHull(points, envelope, tolerance);
     }
-}
-
-public record MapVisualization
-{
-    public required Bitmap Image { get; init; }
-    public required Geometry Hull { get; init; }
 }
