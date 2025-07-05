@@ -21,6 +21,8 @@ public static class MistyMarkHullBuilder
     {
         var mapEnvelope = new Envelope(0, planeBounds.MaxX, 0, planeBounds.MaxX);
         var mapPolygon = Factory.ToGeometry(mapEnvelope);
+        if (points.Length == 0)
+            return mapPolygon;
         var fogShapes = new List<Geometry>();
 
         foreach (var coordinate in points)

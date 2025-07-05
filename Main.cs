@@ -86,7 +86,7 @@ public partial class Main : Form
     private void B_ExportIntersections_Click(object sender, EventArgs e)
     {
         // Get other coordinate set
-        ReadOnlySpan<Coordinate> alternate = [..Program.Regular, ..Program.Outbreak];
+        ReadOnlySpan<Coordinate> alternate = [.. Program.Regular, .. Program.Outbreak];
         if (alternate.Length == 0)
         {
             MessageBox.Show("No alternate coordinates selected for intersection export.", "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -251,5 +251,25 @@ public partial class Main : Form
         UpdateImage();
         MessageBox.Show("Created coordinates cleared.", "Clear Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         B_ClearCreated.Visible = false;
+    }
+
+    private void B_BB_Click(object sender, EventArgs e)
+    {
+        var map = "terarium.png";
+        PB_Image.BackgroundImage = Image.FromFile(Path.Combine(Program.ExeDir, map));
+
+        var ptFile = "terarium_pts.txt";
+        var lines = File.ReadAllLines(Path.Combine(Program.ExeDir, ptFile));
+        var list = Program.Outbreak;
+        Program.MistyCoordinates.Clear();
+        list.Clear();
+        var points = CoordinateLoader.Load(lines, list);
+        if (!points)
+        {
+            MessageBox.Show($"No points loaded from {ptFile}.", "Load Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        UpdateImage();
     }
 }

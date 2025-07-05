@@ -39,6 +39,7 @@
             B_ExportCreated = new Button();
             B_ClearCreated = new Button();
             L_Coordinate = new Label();
+            B_BB = new Button();
             ((System.ComponentModel.ISupportInitialize)PB_Image).BeginInit();
             ((System.ComponentModel.ISupportInitialize)NUD_Tolerance).BeginInit();
             FLP_Alternate.SuspendLayout();
@@ -103,6 +104,7 @@
             FLP_Alternate.Controls.Add(B_ExportIntersections);
             FLP_Alternate.Controls.Add(B_ExportCreated);
             FLP_Alternate.Controls.Add(B_ClearCreated);
+            FLP_Alternate.Controls.Add(B_BB);
             FLP_Alternate.Location = new Point(76, 0);
             FLP_Alternate.Margin = new Padding(0);
             FLP_Alternate.Name = "FLP_Alternate";
@@ -151,6 +153,16 @@
             L_Coordinate.Size = new Size(0, 17);
             L_Coordinate.TabIndex = 6;
             // 
+            // B_BB
+            // 
+            B_BB.Location = new Point(947, 3);
+            B_BB.Name = "B_BB";
+            B_BB.Size = new Size(40, 32);
+            B_BB.TabIndex = 7;
+            B_BB.Text = "BB";
+            B_BB.UseVisualStyleBackColor = true;
+            B_BB.Click += B_BB_Click;
+            // 
             // Main
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
@@ -182,5 +194,6 @@
         private Label L_Coordinate;
         private Button B_ExportCreated;
         private Button B_ClearCreated;
+        private Button B_BB;
     }
 }
