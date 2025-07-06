@@ -8,6 +8,13 @@ internal static class Program
     public static readonly List<Coordinate> Regular = [];
     public static readonly List<Coordinate> Outbreak = [];
 
+    public static readonly Dictionary<string, List<Coordinate>> AllCoordinates = new()
+    {
+        { FileNameMisty, MistyCoordinates },
+        { FileNameRegular, Regular },
+        { FileNameOutbreak, Outbreak },
+    };
+
     public static readonly List<Coordinate> Created = [];
 
     private const string FileNameMisty = "misty.txt";

@@ -32,14 +32,15 @@
         {
             PB_Image = new PictureBox();
             NUD_Tolerance = new NumericUpDown();
-            CHK_RenderBaseCoordinates = new CheckBox();
             B_ExportIntersections = new Button();
             FLP_Alternate = new FlowLayoutPanel();
-            CB_OtherCoordinateSelect = new ComboBox();
+            CB_Coordinates1 = new ComboBox();
+            CB_Coordinates2 = new ComboBox();
             B_ExportCreated = new Button();
             B_ClearCreated = new Button();
-            L_Coordinate = new Label();
             B_BB = new Button();
+            B_OpenCoords = new Button();
+            L_Coordinate = new Label();
             ((System.ComponentModel.ISupportInitialize)PB_Image).BeginInit();
             ((System.ComponentModel.ISupportInitialize)NUD_Tolerance).BeginInit();
             FLP_Alternate.SuspendLayout();
@@ -72,25 +73,11 @@
             NUD_Tolerance.TabIndex = 1;
             NUD_Tolerance.Value = new decimal(new int[] { 17, 0, 0, 0 });
             // 
-            // CHK_RenderBaseCoordinates
-            // 
-            CHK_RenderBaseCoordinates.AutoSize = true;
-            CHK_RenderBaseCoordinates.Checked = true;
-            CHK_RenderBaseCoordinates.CheckState = CheckState.Checked;
-            CHK_RenderBaseCoordinates.Location = new Point(8, 8);
-            CHK_RenderBaseCoordinates.Margin = new Padding(8);
-            CHK_RenderBaseCoordinates.Name = "CHK_RenderBaseCoordinates";
-            CHK_RenderBaseCoordinates.Size = new Size(106, 21);
-            CHK_RenderBaseCoordinates.TabIndex = 2;
-            CHK_RenderBaseCoordinates.Text = "Render Other";
-            CHK_RenderBaseCoordinates.UseVisualStyleBackColor = true;
-            CHK_RenderBaseCoordinates.CheckedChanged += ToggleBaseCoords;
-            // 
             // B_ExportIntersections
             // 
-            B_ExportIntersections.Location = new Point(281, 3);
+            B_ExportIntersections.Location = new Point(395, 3);
             B_ExportIntersections.Name = "B_ExportIntersections";
-            B_ExportIntersections.Size = new Size(216, 32);
+            B_ExportIntersections.Size = new Size(152, 32);
             B_ExportIntersections.TabIndex = 3;
             B_ExportIntersections.Text = "Export Intersections";
             B_ExportIntersections.UseVisualStyleBackColor = true;
@@ -99,35 +86,48 @@
             // FLP_Alternate
             // 
             FLP_Alternate.BackColor = Color.Transparent;
-            FLP_Alternate.Controls.Add(CHK_RenderBaseCoordinates);
-            FLP_Alternate.Controls.Add(CB_OtherCoordinateSelect);
+            FLP_Alternate.Controls.Add(CB_Coordinates1);
+            FLP_Alternate.Controls.Add(CB_Coordinates2);
             FLP_Alternate.Controls.Add(B_ExportIntersections);
             FLP_Alternate.Controls.Add(B_ExportCreated);
             FLP_Alternate.Controls.Add(B_ClearCreated);
             FLP_Alternate.Controls.Add(B_BB);
+            FLP_Alternate.Controls.Add(B_OpenCoords);
             FLP_Alternate.Location = new Point(76, 0);
             FLP_Alternate.Margin = new Padding(0);
             FLP_Alternate.Name = "FLP_Alternate";
-            FLP_Alternate.Size = new Size(1005, 36);
+            FLP_Alternate.Size = new Size(1188, 36);
             FLP_Alternate.TabIndex = 5;
             // 
-            // CB_OtherCoordinateSelect
+            // CB_Coordinates1
             // 
-            CB_OtherCoordinateSelect.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-            CB_OtherCoordinateSelect.AutoCompleteSource = AutoCompleteSource.ListItems;
-            CB_OtherCoordinateSelect.DropDownStyle = ComboBoxStyle.DropDownList;
-            CB_OtherCoordinateSelect.FormattingEnabled = true;
-            CB_OtherCoordinateSelect.Location = new Point(130, 8);
-            CB_OtherCoordinateSelect.Margin = new Padding(8);
-            CB_OtherCoordinateSelect.Name = "CB_OtherCoordinateSelect";
-            CB_OtherCoordinateSelect.Size = new Size(140, 25);
-            CB_OtherCoordinateSelect.TabIndex = 4;
+            CB_Coordinates1.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            CB_Coordinates1.AutoCompleteSource = AutoCompleteSource.ListItems;
+            CB_Coordinates1.DropDownStyle = ComboBoxStyle.DropDownList;
+            CB_Coordinates1.FormattingEnabled = true;
+            CB_Coordinates1.Location = new Point(8, 8);
+            CB_Coordinates1.Margin = new Padding(8);
+            CB_Coordinates1.Name = "CB_Coordinates1";
+            CB_Coordinates1.Size = new Size(180, 25);
+            CB_Coordinates1.TabIndex = 9;
+            // 
+            // CB_Coordinates2
+            // 
+            CB_Coordinates2.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            CB_Coordinates2.AutoCompleteSource = AutoCompleteSource.ListItems;
+            CB_Coordinates2.DropDownStyle = ComboBoxStyle.DropDownList;
+            CB_Coordinates2.FormattingEnabled = true;
+            CB_Coordinates2.Location = new Point(204, 8);
+            CB_Coordinates2.Margin = new Padding(8);
+            CB_Coordinates2.Name = "CB_Coordinates2";
+            CB_Coordinates2.Size = new Size(180, 25);
+            CB_Coordinates2.TabIndex = 4;
             // 
             // B_ExportCreated
             // 
-            B_ExportCreated.Location = new Point(503, 3);
+            B_ExportCreated.Location = new Point(553, 3);
             B_ExportCreated.Name = "B_ExportCreated";
-            B_ExportCreated.Size = new Size(216, 32);
+            B_ExportCreated.Size = new Size(152, 32);
             B_ExportCreated.TabIndex = 5;
             B_ExportCreated.Text = "Export Created";
             B_ExportCreated.UseVisualStyleBackColor = true;
@@ -135,13 +135,33 @@
             // 
             // B_ClearCreated
             // 
-            B_ClearCreated.Location = new Point(725, 3);
+            B_ClearCreated.Location = new Point(711, 3);
             B_ClearCreated.Name = "B_ClearCreated";
-            B_ClearCreated.Size = new Size(216, 32);
+            B_ClearCreated.Size = new Size(152, 32);
             B_ClearCreated.TabIndex = 6;
             B_ClearCreated.Text = "Clear Created";
             B_ClearCreated.UseVisualStyleBackColor = true;
             B_ClearCreated.Click += B_ClearCreated_Click;
+            // 
+            // B_BB
+            // 
+            B_BB.Location = new Point(869, 3);
+            B_BB.Name = "B_BB";
+            B_BB.Size = new Size(40, 32);
+            B_BB.TabIndex = 7;
+            B_BB.Text = "BB";
+            B_BB.UseVisualStyleBackColor = true;
+            B_BB.Click += B_BB_Click;
+            // 
+            // B_OpenCoords
+            // 
+            B_OpenCoords.Location = new Point(915, 3);
+            B_OpenCoords.Name = "B_OpenCoords";
+            B_OpenCoords.Size = new Size(87, 32);
+            B_OpenCoords.TabIndex = 8;
+            B_OpenCoords.Text = "OpenCoord";
+            B_OpenCoords.UseVisualStyleBackColor = true;
+            B_OpenCoords.Click += B_OpenCoords_Click;
             // 
             // L_Coordinate
             // 
@@ -152,16 +172,6 @@
             L_Coordinate.Name = "L_Coordinate";
             L_Coordinate.Size = new Size(0, 17);
             L_Coordinate.TabIndex = 6;
-            // 
-            // B_BB
-            // 
-            B_BB.Location = new Point(947, 3);
-            B_BB.Name = "B_BB";
-            B_BB.Size = new Size(40, 32);
-            B_BB.TabIndex = 7;
-            B_BB.Text = "BB";
-            B_BB.UseVisualStyleBackColor = true;
-            B_BB.Click += B_BB_Click;
             // 
             // Main
             // 
@@ -180,20 +190,19 @@
             ((System.ComponentModel.ISupportInitialize)PB_Image).EndInit();
             ((System.ComponentModel.ISupportInitialize)NUD_Tolerance).EndInit();
             FLP_Alternate.ResumeLayout(false);
-            FLP_Alternate.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
-
-        private CheckBox CHK_RenderBaseCoordinates;
         private Button B_ExportIntersections;
         private FlowLayoutPanel FLP_Alternate;
-        private ComboBox CB_OtherCoordinateSelect;
+        private ComboBox CB_Coordinates2;
         private Label L_Coordinate;
         private Button B_ExportCreated;
         private Button B_ClearCreated;
         private Button B_BB;
+        private Button B_OpenCoords;
+        private ComboBox CB_Coordinates1;
     }
 }

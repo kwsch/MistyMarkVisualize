@@ -55,8 +55,8 @@ public static class BoundaryRenderer
         }
 
         // Draw Misty and non-Misty points
-        DrawPoints(g, mistyPoints, Regular, offsetX, offsetY, scale, height, padding, extraX, extraY);
-        DrawPoints(g, nonMistyPoints, Alternate, offsetX, offsetY, scale, height, padding, extraX, extraY);
+        DrawPoints(g, mistyPoints, Regular, offsetX, offsetY, scale, height, padding, extraX, extraY, 6);
+        DrawPoints(g, nonMistyPoints, Alternate, offsetX, offsetY, scale, height, padding, extraX, extraY, 4);
         return bmp;
     }
 
@@ -74,13 +74,13 @@ public static class BoundaryRenderer
         }
     }
 
-    private static void DrawPoints(Graphics g, ReadOnlySpan<Coordinate> coords, Brush brush, double offsetX, double offsetY, double scale, int height, int padding, double extraX, double extraY)
+    private static void DrawPoints(Graphics g, ReadOnlySpan<Coordinate> coords, Brush brush, double offsetX, double offsetY, double scale, int height, int padding, double extraX, double extraY, int size = 4)
     {
         foreach (var c in coords)
         {
             var x = ((c.X + offsetX) * scale) + padding + extraX;
             var y = height - (((c.Y + offsetY) * scale) + padding + extraY); // Flip Y
-            g.FillEllipse(brush, (float)x - 2, (float)y - 2, 4, 4); // small dot
+            g.FillEllipse(brush, (float)x - (float)size / 2, (float)y - (float)size / 2, size, size); // small dot
         }
     }
 

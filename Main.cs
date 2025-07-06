@@ -6,9 +6,6 @@ namespace MistyMarkVisualize;
 
 public partial class Main : Form
 {
-    // local sanity check for other coordinates
-    private readonly bool _hasOtherCoordinates;
-
     // last rendered hull
     private readonly GeometryFactory _geometryFactory = new();
     private MapVisualization _map;
@@ -17,6 +14,8 @@ public partial class Main : Form
     private bool _isCoordinateValid;
     private (int X, int Y) _currentCoordinate;
 
+    private bool _kitakami = true;
+
     public Main()
     {
         InitializeComponent();
@@ -24,40 +23,64 @@ public partial class Main : Form
 
         B_ExportCreated.Visible = B_ClearCreated.Visible = Program.Created.Count != 0;
         NUD_Tolerance.ValueChanged += ChangeTolerance;
-        if (!LoadOtherCoordinates())
-            FLP_Alternate.Visible = false;
-        else
-            _hasOtherCoordinates = true;
+        LoadOtherCoordinates();
         _map = UpdateImage();
     }
 
-    private const string RegularCoordinates = "Regular Coordinates";
-    private const string OutbreakCoordinates = "Outbreak Coordinates";
     private const string NoOtherCoordinates = "None";
 
-    private bool LoadOtherCoordinates()
+    private void LoadOtherCoordinates()
     {
-        var cb = CB_OtherCoordinateSelect;
-        var items = cb.Items;
-        if (Program.Regular.Count > 0)
-            items.Add(RegularCoordinates);
-        if (Program.Outbreak.Count > 0)
-            items.Add(OutbreakCoordinates);
+        var other = Path.Combine(Program.ExeDir, "other");
+        if (Directory.Exists(other))
+        {
+            // Try to load coordinates from the "other" directory
+            var files = Directory.GetFiles(other, "*.txt", SearchOption.AllDirectories);
+            foreach (var file in files)
+            {
+                var lines = File.ReadLines(file);
+                var coords = new List<Coordinate>();
+                if (!CoordinateLoader.Load(lines, coords))
+                    continue; // Skip empty or invalid files
 
-        if (items.Count != 0)
-            items.Add(NoOtherCoordinates);
-        else
-            return false;
+                var fileName = Path.GetFileName(file);
+                var dir = Path.GetDirectoryName(file);
+                var dirFolderName = dir != null ? Path.GetFileName(dir) : null;
+                Program.AllCoordinates.Add($"{dirFolderName}\\{fileName}", coords);
+            }
+        }
 
-        cb.SelectedIndex = 0;
-        cb.SelectedIndexChanged += ToggleBaseCoords;
-        return true;
+        Init(CB_Coordinates1);
+        Init(CB_Coordinates2);
+        void Init(ComboBox cb)
+        {
+            cb.Items.Add("None");
+            cb.SelectedIndex = 0;
+
+            string GetIndex(string name)
+            {
+                if (!name.Contains('\\'))
+                    return string.Empty;
+                var split = name.Split('\\');
+                var dir = split[0];
+                name = split[1];
+
+                return name;
+            }
+            foreach (var set in Program.AllCoordinates.OrderBy(z => GetIndex(z.Key)).ThenBy(z => z.Key))
+            {
+                if (set.Value.Count == 0)
+                    continue; // Skip empty coordinate sets
+                cb.Items.Add(set.Key);
+            }
+            cb.SelectedIndexChanged += ToggleBaseCoords;
+        }
     }
 
     private void ChangeTolerance(object? sender, EventArgs e) => UpdateImage();
     private void ToggleBaseCoords(object? sender, EventArgs e)
     {
-        B_ExportIntersections.Visible = CB_OtherCoordinateSelect.SelectedItem?.ToString() != NoOtherCoordinates;
+        B_ExportIntersections.Visible = CB_Coordinates2.SelectedItem?.ToString() != NoOtherCoordinates;
         UpdateImage();
     }
 
@@ -65,19 +88,13 @@ public partial class Main : Form
     {
         var tolerance = (double)NUD_Tolerance.Value;
 
-        var mist = CollectionsMarshal.AsSpan(Program.MistyCoordinates);
+        var coord1 = Program.AllCoordinates.TryGetValue(CB_Coordinates1.SelectedItem.ToString(), out var list1);
+        var set1 = coord1 ? CollectionsMarshal.AsSpan(list1) : ReadOnlySpan<Coordinate>.Empty;
 
-        ReadOnlySpan<Coordinate> alternate = [];
-        if (_hasOtherCoordinates && CHK_RenderBaseCoordinates.Checked)
-        {
-            var source = CB_OtherCoordinateSelect.SelectedItem?.ToString();
-            if (source == RegularCoordinates)
-                alternate = CollectionsMarshal.AsSpan(Program.Regular);
-            else if (source == OutbreakCoordinates)
-                alternate = CollectionsMarshal.AsSpan(Program.Outbreak);
-        }
+        var coord2 = Program.AllCoordinates.TryGetValue(CB_Coordinates2.SelectedItem.ToString(), out var list2);
+        var set2 = coord2 ? CollectionsMarshal.AsSpan(list2) : ReadOnlySpan<Coordinate>.Empty;
 
-        var result = MistyMarkVisualizer.GetImage(mist, tolerance, alternate);
+        var result = MistyMarkVisualizer.GetImage(set1, tolerance, set2);
         PB_Image.Image?.Dispose();
         PB_Image.Image = result.Image;
         return _map = result;
@@ -255,21 +272,38 @@ public partial class Main : Form
 
     private void B_BB_Click(object sender, EventArgs e)
     {
-        var map = "terarium.png";
-        PB_Image.BackgroundImage = Image.FromFile(Path.Combine(Program.ExeDir, map));
+        _kitakami ^= true; // Toggle between Kitakami and Terarium
+        PB_Image.BackgroundImage = _kitakami ? Properties.Resources.kitakami2000 : Properties.Resources.terarium;
+    }
 
-        var ptFile = "terarium_pts.txt";
-        var lines = File.ReadAllLines(Path.Combine(Program.ExeDir, ptFile));
-        var list = Program.Outbreak;
-        Program.MistyCoordinates.Clear();
-        list.Clear();
-        var points = CoordinateLoader.Load(lines, list);
-        if (!points)
-        {
-            MessageBox.Show($"No points loaded from {ptFile}.", "Load Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+    private void B_OpenCoords_Click(object sender, EventArgs e)
+    {
+        using var ofd = new OpenFileDialog();
+        ofd.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+        ofd.Title = "Open Coordinates File";
+
+        if (ofd.ShowDialog() != DialogResult.OK)
             return;
-        }
 
-        UpdateImage();
+        var filePath = ofd.FileName;
+        try
+        {
+            var lines = File.ReadAllLines(filePath);
+            var list = Program.Outbreak;
+            list.Clear();
+
+            var points = CoordinateLoader.Load(lines, list);
+            if (!points)
+            {
+                MessageBox.Show($"No points loaded from {filePath}.", "Load Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            UpdateImage();
+            MessageBox.Show($"Coordinates loaded from: {filePath}", "Load Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to load coordinates: {ex.Message}", "Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 }
