@@ -103,7 +103,6 @@
             // 
             CB_Coordinates1.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             CB_Coordinates1.AutoCompleteSource = AutoCompleteSource.ListItems;
-            CB_Coordinates1.DropDownStyle = ComboBoxStyle.DropDownList;
             CB_Coordinates1.FormattingEnabled = true;
             CB_Coordinates1.Location = new Point(8, 8);
             CB_Coordinates1.Margin = new Padding(8);
@@ -115,7 +114,6 @@
             // 
             CB_Coordinates2.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             CB_Coordinates2.AutoCompleteSource = AutoCompleteSource.ListItems;
-            CB_Coordinates2.DropDownStyle = ComboBoxStyle.DropDownList;
             CB_Coordinates2.FormattingEnabled = true;
             CB_Coordinates2.Location = new Point(204, 8);
             CB_Coordinates2.Margin = new Padding(8);
